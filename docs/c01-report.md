@@ -172,3 +172,34 @@ Lý do, theo thứ tự quan trọng với DoodleLife:
   chờ. Sếp quyết định không setup billing, vì vậy provider chính đổi
   sang Cloudflare Workers AI (xem Hiệu đính 2 ở đầu báo cáo). Không chạy
   lại Gemini khi chưa bật billing.
+
+## Kết quả chạy thật lần 2 — 06/11/2026 19:03–19:05 (+07) ✅
+
+- Provider/model: Cloudflare Workers AI `@cf/black-forest-labs/flux-1-schnell`
+  (FLUX.1 schnell), 20 câu mẫu — bản dịch tiếng Anh `C01_SENTENCES_EN`
+  của 20 câu gốc trong `packages/shared/src/c01-sentences.ts`.
+- Kết quả: **20/20 ảnh thành công, chi phí $0,00.** Thời gian trung bình
+  **6,62 giây/ảnh** (nhanh nhất 1,3 giây, chậm nhất 20,7 giây — câu 12).
+  Ảnh thật 1024×1024 JPEG trong `results/cloudflare/c01-01.jpg` …
+  `c01-20.jpg`. File kết quả: `apps/api/results/c01-cloudflare.json` + `.csv`
+  (cột `relevance` vẫn null — chờ người chấm điền tay).
+- Sửa lỗi trước khi chạy đủ 20 câu: 2 câu thử đầu bị HTTP 400 vì adapter
+  gửi thêm tham số `num_steps` mà schema của FLUX không nhận ("unevaluated
+  properties '/num_steps'") — đã sửa thành chỉ gửi `prompt` và giữ nguyên
+  model ID dạng `@cf/...` trong URL (không encode), chạy lại 2/2 rồi mới
+  chạy cả 20 câu. Bài học: với Workers AI, chỉ gửi đúng field mà trang
+  model của Cloudflare liệt kê.
+- Kiểm tra sơ bộ phong cách (Jarvis xem 6/20 ảnh: 01, 02, 05, 09, 12, 19):
+  phong cách doodle giữ vững — nét viền dày, màu phẳng đúng bảng 6 màu,
+  nền kem, **không có chữ thật trong ảnh nào**. Lệch ý cần ghi nhận cho C02:
+  c01-09 (em bé tập đi) vẽ thêm 2–3 trẻ em thừa; c01-12 (học bài khuya)
+  nền không đồng màu mà có mảng trời đêm xám; c01-19 (lạc đường ở phố cổ)
+  có tiệm sách cũ nhưng thiếu người đang lạc đường, và có một biển hiệu
+  với nét ngoằn ngoèo (không phải chữ thật). Đây là nhận xét sơ bộ —
+  **Sếp vẫn cần xem đủ 20 ảnh và điền `relevance` 0–2 vào file kết quả.**
+- **Kết luận C01: chốt Cloudflare Workers AI FLUX.1 schnell làm provider
+  chính** — 20/20 ảnh thật, $0, thời gian chấp nhận được cho luồng sticker
+  (trung bình ~7 giây/ảnh, chạy nền trong job DB). Gemini giữ làm đường
+  nâng cấp trả phí khi cần bám prompt tiếng Việt trực tiếp hoặc chất lượng
+  cao hơn. Việc còn lại của C01: Sếp chấm `relevance` 0–2 cho 20 ảnh, và
+  một thành viên khác trong nhóm review PR.

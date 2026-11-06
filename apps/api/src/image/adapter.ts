@@ -238,15 +238,18 @@ async function generateWithCloudflare(env: Env, input: GenerateInput): Promise<G
   }
   // Lưu ý: content ở đây phải là cảnh tiếng Anh (xem ghi chú đầu file).
   const prompt = checkedPrompt(input.content);
+  // Model ID giữ nguyên dạng @cf/... trong URL như tài liệu Cloudflare
+  // (không encodeURIComponent — encode sẽ làm sai đường dẫn model).
   const url =
-    `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${encodeURIComponent(input.model)}`;
+    `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${input.model}`;
   let res: Response;
   try {
     res = await fetch(url, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      // FLUX.1 schnell: 4 bước là mặc định, đủ nhanh cho sticker.
-      body: JSON.stringify({ prompt, num_steps: 4 }),
+      // Chỉ gửi prompt: schema của flux-1-schnell không nhận num_steps
+      // (gửi thêm sẽ bị API từ chối 400 "unevaluated properties").
+      body: JSON.stringify({ prompt }),
     });
   } catch {
     throw new AdapterError(ApiErrorCode.PROVIDER_UNAVAILABLE, 'Không kết nối được tới Cloudflare Workers AI.');

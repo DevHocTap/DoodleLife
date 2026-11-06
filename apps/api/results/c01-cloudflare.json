@@ -1,0 +1,226 @@
+{
+  "provider": "cloudflare",
+  "model": "@cf/black-forest-labs/flux-1-schnell",
+  "results": [
+    {
+      "index": 1,
+      "sentence": "Sáng nay tôi đạp xe qua cầu, gió mát, lòng nhẹ nhõm như vừa trút được gánh nặng.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.73,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-01.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 2,
+      "sentence": "Mẹ nấu bát phở gà nóng hổi, khói bay lên, cả nhà quây quần bên bàn ăn nhỏ.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.38,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-02.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 3,
+      "sentence": "Tôi ngồi bên cửa sổ quán cà phê, mưa lất phất ngoài phố, tay ôm cốc sữa nóng.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.49,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-03.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 4,
+      "sentence": "Chiều tan làm, tôi ghé chợ mua bó hoa cúc vàng tặng vợ nhân kỷ niệm ngày cưới.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 8.22,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-04.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 5,
+      "sentence": "Con mèo cam cuộn tròn ngủ trên ghế sofa, nắng chiều rọi qua rèm cửa.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 10.94,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-05.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 6,
+      "sentence": "Tôi leo lên đồi ngắm bình minh, biển mây trôi dưới chân, tim đập rộn ràng.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.29,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-06.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 7,
+      "sentence": "Buổi họp nhóm căng thẳng, ai cũng mệt, nhưng cuối cùng chúng tôi bật cười vì một câu đùa.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 12.66,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-07.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 8,
+      "sentence": "Tôi viết nhật ký dưới ánh đèn vàng, ngoài kia tiếng ve kêu râm ran mùa hè.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 11.38,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-08.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 9,
+      "sentence": "Em bé tập đi những bước đầu tiên, bố mẹ dang tay đón, cả nhà reo lên vui sướng.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 2.02,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-09.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 10,
+      "sentence": "Tôi đi chợ hoa Tết, đào hồng, mai vàng, người đông mà lòng thấy náo nức.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 9.64,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-10.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 11,
+      "sentence": "Trận bóng chiều nay thua sát nút, tôi buồn một lúc rồi rủ bạn đi ăn bánh mì.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 8.46,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-11.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 12,
+      "sentence": "Tôi học bài khuya, đèn bàn sáng, chồng sách cao, nhưng quyết không bỏ cuộc.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 20.72,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-12.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 13,
+      "sentence": "Ngày đầu đi làm, tôi hồi hộp bước vào văn phòng mới, đồng nghiệp cười chào thân thiện.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 12.51,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-13.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 14,
+      "sentence": "Tôi và bạn thân đạp xe dọc bờ sông, hoàng hôn đỏ rực, gió thổi mát rượi.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.89,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-14.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 15,
+      "sentence": "Bữa tối đơn giản chỉ có trứng chiên và canh rau, nhưng ăn cùng người thương nên ngon lạ.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 5.62,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-15.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 16,
+      "sentence": "Tôi bị cảm, nằm co ro trong chăn, mẹ mang cháo hành nóng lên tận phòng.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.35,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-16.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 17,
+      "sentence": "Tôi ngắm pháo hoa đêm giao thừa, lòng mong năm mới bình an cho cả nhà.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 2.15,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-17.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 18,
+      "sentence": "Sáng chủ nhật tôi tưới cây ngoài ban công, chim hót, cà phê còn bốc khói.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 7.95,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-18.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 19,
+      "sentence": "Tôi lạc đường ở phố cổ, vừa lo vừa thích thú vì vô tình thấy một tiệm sách cũ rất đẹp.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 1.45,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-19.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    },
+    {
+      "index": 20,
+      "sentence": "Tôi hoàn thành bài tập lớn sau nhiều đêm thức trắng, thở phào và mỉm cười một mình.",
+      "provider": "cloudflare",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "success": true,
+      "durationSeconds": 9.53,
+      "estimatedCostUsd": 0,
+      "relevance": null,
+      "note": "Ảnh thật lưu ở results/cloudflare/c01-20.jpg. Cần chấm độ phù hợp 0-2 và phong cách doodle. Prompt gửi đi là bản dịch tiếng Anh của câu này."
+    }
+  ]
+}

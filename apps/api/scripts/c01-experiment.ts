@@ -123,7 +123,10 @@ async function main(): Promise<void> {
     try {
       const res = await generateImage(env, { content: scenes[i], provider, model });
       const seconds = (Date.now() - started) / 1000;
-      await writeFile(join(outDir, `c01-${String(i + 1).padStart(2, '0')}.png`), res.image);
+      // Đuôi file theo đúng mimeType provider trả về (Cloudflare trả JPEG).
+      const ext = res.mimeType === 'image/jpeg' ? 'jpg' : 'png';
+      const fileName = `c01-${String(i + 1).padStart(2, '0')}.${ext}`;
+      await writeFile(join(outDir, fileName), res.image);
       results.push({
         index: i + 1,
         sentence,
@@ -133,7 +136,7 @@ async function main(): Promise<void> {
         durationSeconds: Math.round(seconds * 100) / 100,
         estimatedCostUsd: estimatedCost,
         relevance: null, // người chấm điền tay sau khi xem ảnh
-        note: `Ảnh thật lưu ở results/${provider}/c01-${String(i + 1).padStart(2, '0')}.png. Cần chấm độ phù hợp 0-2 và phong cách doodle.${provider === 'cloudflare' ? ' Prompt gửi đi là bản dịch tiếng Anh của câu này.' : ''}`,
+        note: `Ảnh thật lưu ở results/${provider}/${fileName}. Cần chấm độ phù hợp 0-2 và phong cách doodle.${provider === 'cloudflare' ? ' Prompt gửi đi là bản dịch tiếng Anh của câu này.' : ''}`,
       });
       console.log(`[${i + 1}/${sentences.length}] OK ${seconds.toFixed(1)}s`);
     } catch (err) {
