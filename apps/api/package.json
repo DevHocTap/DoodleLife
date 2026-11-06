@@ -1,0 +1,28 @@
+{
+  "description": "DoodleLife API — Express + TypeScript",
+  "license": "UNLICENSED",
+  "main": "dist/src/index.js",
+  "name": "@doodlelife/api",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "c01": "tsx scripts/c01-experiment.ts",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/src/index.js",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "types": "dist/src/index.d.ts",
+  "version": "0.1.0",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}

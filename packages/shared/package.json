@@ -1,0 +1,24 @@
+{
+  "description": "Types, lỗi chuẩn và prompt dùng chung cho DoodleLife",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "name": "@doodlelife/shared",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test test/doodle-v1.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "types": "dist/index.d.ts",
+  "version": "0.1.0",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}
