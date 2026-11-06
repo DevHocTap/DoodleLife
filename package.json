@@ -1,0 +1,20 @@
+{
+  "description": "DoodleLife — Nền tảng nhật ký trực quan tích hợp AI",
+  "engines": {
+    "node": ">=20"
+  },
+  "name": "doodlelife",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspace=@doodlelife/shared && npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "test": "npm run build --workspace=@doodlelife/shared && npm run test --workspaces --if-present",
+    "typecheck": "npm run build --workspace=@doodlelife/shared && npm run typecheck --workspaces --if-present"
+  },
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module"
+}
