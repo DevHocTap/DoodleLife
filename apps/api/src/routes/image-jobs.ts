@@ -40,7 +40,12 @@ export function imageJobsRouter(env: Env, store: JobStore): Router {
             ? env.openaiModel
             : provider === 'stability'
               ? env.stabilityModel
-              : env.replicateModel;
+              : provider === 'replicate'
+                ? env.replicateModel
+                : env.cloudflareModel;
+      // Lưu ý Sprint 1: provider cloudflare nhận cảnh tiếng Anh (xem
+      // adapter). Nhật ký tiếng Việt ở đây cần bước dịch Việt → Anh
+      // trước khi worker gọi Cloudflare — bước này sẽ làm ở C03/C05.
       const job = store.create({
         entryId: body.entryId.trim(),
         ownerId: body.ownerId.trim(),

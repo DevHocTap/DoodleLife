@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { C01_SENTENCES } from '../src/c01-sentences.js';
+import { C01_SENTENCES, C01_SENTENCES_EN } from '../src/c01-sentences.js';
 import {
   buildDoodlePrompt,
   checkDoodlePrompt,
@@ -33,6 +33,16 @@ test('doodle v1: 20 câu mẫu đều ghép được prompt hợp lệ, không c
     const check = checkDoodlePrompt(prompt);
     assert.equal(check.ok, true, `câu "${sentence}" -> ${check.problems.join('; ')}`);
     assert.ok(prompt.includes(sentence.trim().slice(0, 20)));
+  }
+});
+
+test('doodle v1: 20 câu tiếng Anh (cho Cloudflare FLUX) khớp 20 câu gốc, prompt hợp lệ', () => {
+  assert.equal(C01_SENTENCES_EN.length, 20);
+  assert.equal(C01_SENTENCES_EN.length, C01_SENTENCES.length);
+  for (const sentence of C01_SENTENCES_EN) {
+    const prompt = buildDoodlePrompt(sentence);
+    const check = checkDoodlePrompt(prompt);
+    assert.equal(check.ok, true, `câu "${sentence}" -> ${check.problems.join('; ')}`);
   }
 });
 

@@ -14,8 +14,14 @@ import { apiKeyFor, type Env } from '../env.js';
  * - Key chỉ đọc từ env, không hardcode, không log, không trả ra ngoài.
  * - Lỗi provider được map về mã lỗi chuẩn; raw error không lộ ra ngoài.
  * - Adapter này là bản Sprint 1: gọi đồng bộ (sync) cho Gemini/OpenAI/
- *   Stability; Replicate dùng polling theo đúng API async của nó.
- *   Tác vụ nền (job queue) nằm ở src/jobs, C05 sẽ nối vào.
+ *   Stability/Cloudflare; Replicate dùng polling theo đúng API async
+ *   của nó. Tác vụ nền (job queue) nằm ở src/jobs, C05 sẽ nối vào.
+ * - Cloudflare Workers AI (FLUX.1 schnell) là provider chính từ
+ *   06/11/2026 vì miễn phí (10.000 neurons/ngày). FLUX bám prompt
+ *   tiếng Anh tốt nhất nên `content` đưa vào đường Cloudflare phải là
+ *   cảnh đã dịch sang tiếng Anh (harness C01 dùng C01_SENTENCES_EN).
+ *   Trong luồng sản phẩm, nhật ký tiếng Việt cần bước dịch Việt → Anh
+ *   trước khi gọi Cloudflare — bước này chưa có trong Sprint 1.
  */
 
 export interface GenerateInput {
@@ -221,6 +227,45 @@ async function generateWithReplicate(env: Env, input: GenerateInput): Promise<Ge
   };
 }
 
+async function generateWithCloudflare(env: Env, input: GenerateInput): Promise<GenerateResult> {
+  const token = requireKey(env, 'cloudflare');
+  const accountId = env.cloudflareAccountId;
+  if (!accountId) {
+    throw new AdapterError(
+      ApiErrorCode.PROVIDER_NOT_CONFIGURED,
+      'Chưa cấu hình CLOUDFLARE_ACCOUNT_ID cho provider cloudflare. Xem apps/api/.env.example.',
+    );
+  }
+  // Lưu ý: content ở đây phải là cảnh tiếng Anh (xem ghi chú đầu file).
+  const prompt = checkedPrompt(input.content);
+  const url =
+    `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${encodeURIComponent(input.model)}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      // FLUX.1 schnell: 4 bước là mặc định, đủ nhanh cho sticker.
+      body: JSON.stringify({ prompt, num_steps: 4 }),
+    });
+  } catch {
+    throw new AdapterError(ApiErrorCode.PROVIDER_UNAVAILABLE, 'Không kết nối được tới Cloudflare Workers AI.');
+  }
+  if (!res.ok) {
+    throw new AdapterError(mapHttpError(res.status), `Cloudflare Workers AI trả lỗi HTTP ${res.status}.`);
+  }
+  const data = (await res.json()) as {
+    success?: boolean;
+    result?: { image?: string };
+    errors?: Array<{ message?: string }>;
+  };
+  const b64 = data.result?.image?.replace(/^data:image\/\w+;base64,/, '');
+  if (!data.success || !b64) {
+    throw new AdapterError(ApiErrorCode.PROVIDER_UNAVAILABLE, 'Cloudflare Workers AI không trả về ảnh.');
+  }
+  return { image: Buffer.from(b64, 'base64'), mimeType: 'image/jpeg', provider: 'cloudflare', model: input.model };
+}
+
 /** Điểm vào duy nhất: gọi provider đã chọn, trả ảnh hoặc ném AdapterError (mã chuẩn). */
 export async function generateImage(env: Env, input: GenerateInput): Promise<GenerateResult> {
   const content = validateContent(input.content);
@@ -234,5 +279,7 @@ export async function generateImage(env: Env, input: GenerateInput): Promise<Gen
       return generateWithStability(env, checked);
     case 'replicate':
       return generateWithReplicate(env, checked);
+    case 'cloudflare':
+      return generateWithCloudflare(env, checked);
   }
 }

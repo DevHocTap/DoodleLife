@@ -6,6 +6,12 @@
  *   OPENAI_API_KEY=... npm run c01 -- --provider openai
  *   STABILITY_API_KEY=... npm run c01 -- --provider stability
  *   REPLICATE_API_TOKEN=... npm run c01 -- --provider replicate
+ *   CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npm run c01 -- --provider cloudflare
+ *
+ * Provider mặc định là cloudflare (miễn phí, Sếp chốt 06/11/2026).
+ * Với cloudflare, harness dùng bản dịch tiếng Anh của 20 câu
+ * (C01_SENTENCES_EN) vì FLUX bám prompt tiếng Anh tốt nhất; 20 câu
+ * tiếng Việt gốc vẫn ghi trong file kết quả để chấm đối chiếu.
  *
  * Quy tắc an toàn:
  * - Key chỉ đọc từ biến môi trường, không hardcode, không in ra log.
@@ -19,7 +25,7 @@
 import 'dotenv/config';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { C01_SENTENCES, type C01Result, type ImageProviderId } from '@doodlelife/shared';
+import { C01_SENTENCES, C01_SENTENCES_EN, type C01Result, type ImageProviderId } from '@doodlelife/shared';
 import { generateImage } from '../src/image/adapter.js';
 import { loadEnv } from '../src/env.js';
 
@@ -32,6 +38,9 @@ const ESTIMATED_COST_USD: Record<string, number> = {
   'stability:sd3-large': 0.065,
   'replicate:black-forest-labs/flux-schnell': 0.003,
   'replicate:black-forest-labs/flux-dev': 0.025,
+  // Cloudflare Workers AI: 10.000 neurons/ngày miễn phí, ~100–200 ảnh
+  // FLUX.1 schnell 1024×1024/ngày trong hạn mức đó — chi phí $0.
+  'cloudflare:@cf/black-forest-labs/flux-1-schnell': 0,
 };
 
 const KEY_ENV: Record<ImageProviderId, string> = {
@@ -39,6 +48,7 @@ const KEY_ENV: Record<ImageProviderId, string> = {
   openai: 'OPENAI_API_KEY',
   stability: 'STABILITY_API_KEY',
   replicate: 'REPLICATE_API_TOKEN',
+  cloudflare: 'CLOUDFLARE_API_TOKEN',
 };
 
 function parseArgs(argv: string[]): { provider: ImageProviderId; out: string; limit: number } {
@@ -46,9 +56,9 @@ function parseArgs(argv: string[]): { provider: ImageProviderId; out: string; li
     const i = argv.indexOf(flag);
     return i >= 0 && argv[i + 1] ? argv[i + 1] : fallback;
   };
-  const provider = get('--provider', 'gemini') as ImageProviderId;
-  if (!['gemini', 'openai', 'stability', 'replicate'].includes(provider)) {
-    throw new Error(`Provider không hợp lệ: ${provider}. Chọn gemini | openai | stability | replicate.`);
+  const provider = get('--provider', 'cloudflare') as ImageProviderId;
+  if (!['gemini', 'openai', 'stability', 'replicate', 'cloudflare'].includes(provider)) {
+    throw new Error(`Provider không hợp lệ: ${provider}. Chọn gemini | openai | stability | replicate | cloudflare.`);
   }
   return {
     provider,
@@ -76,6 +86,13 @@ async function main(): Promise<void> {
     );
     process.exit(2);
   }
+  if (provider === 'cloudflare' && !process.env.CLOUDFLARE_ACCOUNT_ID) {
+    console.error(
+      'C01 chưa chạy được: thiếu biến môi trường CLOUDFLARE_ACCOUNT_ID cho provider cloudflare.\n' +
+        'Lấy Account ID ở dashboard Cloudflare → trang Workers AI → Use REST API.',
+    );
+    process.exit(2);
+  }
   const model =
     provider === 'gemini'
       ? env.geminiModel
@@ -83,7 +100,9 @@ async function main(): Promise<void> {
         ? env.openaiModel
         : provider === 'stability'
           ? env.stabilityModel
-          : env.replicateModel;
+          : provider === 'replicate'
+            ? env.replicateModel
+            : env.cloudflareModel;
   const costKey = `${provider}:${model}`;
   const estimatedCost = ESTIMATED_COST_USD[costKey] ?? null;
   if (estimatedCost === null) {
@@ -94,12 +113,15 @@ async function main(): Promise<void> {
   await mkdir(outDir, { recursive: true });
   const results: C01Result[] = [];
   const sentences = C01_SENTENCES.slice(0, limit);
+  // Cloudflare FLUX nhận cảnh tiếng Anh; file kết quả vẫn ghi câu gốc
+  // tiếng Việt để người chấm đối chiếu ý.
+  const scenes = provider === 'cloudflare' ? C01_SENTENCES_EN.slice(0, limit) : sentences;
 
   for (let i = 0; i < sentences.length; i++) {
     const sentence = sentences[i];
     const started = Date.now();
     try {
-      const res = await generateImage(env, { content: sentence, provider, model });
+      const res = await generateImage(env, { content: scenes[i], provider, model });
       const seconds = (Date.now() - started) / 1000;
       await writeFile(join(outDir, `c01-${String(i + 1).padStart(2, '0')}.png`), res.image);
       results.push({
@@ -111,7 +133,7 @@ async function main(): Promise<void> {
         durationSeconds: Math.round(seconds * 100) / 100,
         estimatedCostUsd: estimatedCost,
         relevance: null, // người chấm điền tay sau khi xem ảnh
-        note: `Ảnh thật lưu ở results/${provider}/c01-${String(i + 1).padStart(2, '0')}.png. Cần chấm độ phù hợp 0-2 và phong cách doodle.`,
+        note: `Ảnh thật lưu ở results/${provider}/c01-${String(i + 1).padStart(2, '0')}.png. Cần chấm độ phù hợp 0-2 và phong cách doodle.${provider === 'cloudflare' ? ' Prompt gửi đi là bản dịch tiếng Anh của câu này.' : ''}`,
       });
       console.log(`[${i + 1}/${sentences.length}] OK ${seconds.toFixed(1)}s`);
     } catch (err) {

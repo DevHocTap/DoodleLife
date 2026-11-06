@@ -9,6 +9,23 @@ kiểm tra lại trang giá chính thức của provider trước khi chốt ng�
 > `.env.example` đã đổi sang `gemini-nano-banana-2.1`; giá ~$0.07/ảnh của
 > bản cũ không áp dụng cho model mới — kiểm tra lại giá của 2.1 trước khi
 > chạy thử 20 câu.
+>
+> **Hiệu đính 2, tối 06/11/2026 — đổi provider chính sang Cloudflare:**
+> Sếp quyết định **không setup billing**. Jarvis kiểm chứng lại bằng tìm
+> kiếm: Gemini API ghi free tier cho image output là **"Not available"**
+> với mọi model ảnh, kể cả `gemini-nano-banana-2.1`; project free có
+> limit 0 cho image output nên lỗi 429 ở lần chạy 1 **không hết khi chờ**
+> — đây chính là nguyên nhân, không phải key sai hay hết quota ngày.
+> Provider chính đổi sang **Cloudflare Workers AI, model FLUX.1 schnell
+> (`@cf/black-forest-labs/flux-1-schnell`)**, miễn phí 10.000 neurons/ngày
+> (khoảng 100–200 ảnh 1024×1024/ngày trong hạn mức đó), không cần thẻ.
+> Gemini giữ làm đường nâng cấp trả phí ($0.0336/ảnh 1K cho
+> `gemini-nano-banana-2.1`, nạp trước tối thiểu $5). Vì FLUX bám prompt
+> tiếng Anh tốt nhất, thử nghiệm C01 với Cloudflare dùng bản dịch tiếng
+> Anh của 20 câu (`C01_SENTENCES_EN`); trong luồng sản phẩm, nhật ký
+> tiếng Việt cần bước dịch Việt → Anh trước khi gọi Cloudflare (chưa có
+> trong Sprint 1 — sẽ làm ở C03/C05, có thể dùng Gemini text API vốn có
+> free tier để dịch).
 
 ## Trạng thái quan trọng: ảnh thật CHƯA được tạo
 
@@ -20,14 +37,17 @@ làm minh chứng thật.
 
 Để chạy thử 20 câu thật, cần **một** trong các key sau (chỉ cần key của
 provider đã chọn):
-- `GEMINI_API_KEY` (khuyến nghị), hoặc
+- `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (khuyến nghị — miễn phí),
+  lấy ở dashboard Cloudflare → trang Workers AI → Use REST API →
+  Create a Workers AI API Token; hoặc
+- `GEMINI_API_KEY` (cần billing), hoặc
 - `OPENAI_API_KEY`, hoặc `STABILITY_API_KEY`, hoặc `REPLICATE_API_TOKEN`.
 
 Cách chạy sau khi có key (xem thêm trong `apps/api/scripts/c01-experiment.ts`):
 
 ```bash
 cd apps/api
-GEMINI_API_KEY=<key> npm run c01 -- --provider gemini --out results/c01-gemini.json
+CLOUDFLARE_API_TOKEN=<token> CLOUDFLARE_ACCOUNT_ID=<id> npm run c01 -- --provider cloudflare --out results/c01-cloudflare.json
 ```
 
 Kết quả sẽ ghi ra `results/c01-<provider>.json` + `.csv` và ảnh thật vào
@@ -45,64 +65,76 @@ ghi chú phong cách doodle sau khi xem ảnh.
 
 Code trong repo đã dùng model kế nhiệm, không dùng tên model đã tắt.
 
-## Bảng so sánh 4 provider (giá kiểm tra 06/11/2026)
+## Bảng so sánh provider (giá kiểm tra 06/11/2026)
 
 Giá dưới đây là giá công bố tại thời điểm kiểm tra; chi phí thật cho 20 ảnh
 tính theo công thức trong bảng. "Chi phí 20 ảnh" chưa tính phí input/thử lại.
 
 | Provider / model | Giá/ảnh (kiểm tra 06/11/2026) | Chi phí ước tính 20 ảnh | Chạy nền / async | Prompt tiếng Việt | Nguồn |
 | --- | --- | --- | --- | --- | --- |
+| **Cloudflare Workers AI FLUX.1 schnell** (`@cf/black-forest-labs/flux-1-schnell`) — **provider chính từ tối 06/11/2026** | **$0** trong 10.000 neurons/ngày miễn phí (~100–200 ảnh 1024×1024/ngày; FLUX schnell ~57,6 neurons/ảnh ở 4 bước). Vượt hạn mức trên gói Free thì request lỗi chứ không tự tính phí. | **$0** | Sync (API trả ảnh base64 ngay); tự xếp job trong DB của mình | Cần dịch sang tiếng Anh trước — thử nghiệm C01 dùng bản dịch `C01_SENTENCES_EN` | developers.cloudflare.com/workers-ai (pricing, REST API), bảng so sánh free tier 10/10/2026 |
 | **Google Gemini 3.1 Flash Image** (`gemini-3.1-flash-image`, Nano Banana 2) | ~**$0.07**/ảnh 1K (Runway Dev: 7 credits = $0.07; bản Lite $0.04) | ~**$1.40** | Sync (API trả ngay); tự xếp job trong DB của mình | **Tốt — Gemini 3 Pro/Flash Image liệt kê vi-VN trong nhóm ngôn ngữ hiệu năng tốt nhất** (Google Cloud docs) | dev.runwayml.com, cloud.google.com/vertex-ai (limitations) |
 | **Google Gemini 3 Pro Image** (`gemini-3-pro-image`, Nano Banana Pro) | **$0.134**/ảnh 1K–2K, $0.24/ảnh 4K ($120/1M output tokens; batch $0.067) | ~**$2.68** | Sync; tự xếp job trong DB | **Tốt — vi-VN được liệt kê**; mạnh nhất về bám prompt + chỉnh sửa nhiều bước | ai.google.dev / Gemini API pricing qua argolink.io, 8frame.co (đọc 09–18/10/2026) |
 | **OpenAI `gpt-image-2`** | Token: output $30/1M; ước tính **$0.006 low / $0.053 medium / $0.211 high** mỗi ảnh 1024×1024 (chỉ tính output; input $5/1M text, $8/1M image thêm vào). Batch giảm 50%. | ~**$1.06** ở medium (chưa tính input) | Sync; Batch API async (tối đa 24h) giảm 50% | Tốt (LLM đa ngôn ngữ), nhưng giá theo token nên khó dự toán chính xác khi chưa chạy | developers.openai.com (pricing), blog.laozhang.ai (03/10/2026) |
 | **Stability SD3 / SD3.5** | Credit: 1 credit = $0.01. SD3.5 Flash **$0.025**, Core $0.03, SD3.5 Medium $0.035, Large Turbo $0.04, Large $0.065, Ultra $0.08. Tài khoản mới có 25 credit miễn phí. | **$0.50** (Flash) – **$1.30** (Large) | Sync REST; không có async/webhook chính thức — tự xếp job trong DB | Trung bình — diffusion model, prompt tiếng Anh bám tốt nhất; prompt tiếng Việt nên dịch sang tiếng Anh trước (thêm bước, có thể lệch ý) | platform.stability.ai/pricing (kiểm tra 26/09–08/10/2026) |
 | **Replicate FLUX** | Per-output: Schnell **$0.003**/ảnh ($3/1000), Dev **$0.025**/ảnh, 1.1 Pro **$0.04**/ảnh. Model khác tính theo giây GPU (H100 $0.001525/s). Không có free tier. | **$0.06** (Schnell) – **$0.50** (Dev) | **Async native tốt nhất**: predictions API (`starting → processing → succeeded/failed`), `Prefer: wait` tối đa 60s, polling hoặc webhook. **Lưu ý: output URL chỉ sống ~1 giờ — phải tải về storage ngay (C04).** | Trung bình — như Stability, prompt tiếng Anh bám tốt nhất; tiếng Việt cần dịch trước | replicate.com/pricing (kiểm tra 23/09–28/10/2026), docs Replicate predictions |
 
-## Khuyến nghị
+## Khuyến nghị (cập nhật tối 06/11/2026)
 
-### Provider chính: Google Gemini 3.1 Flash Image (Nano Banana 2)
+### Provider chính: Cloudflare Workers AI — FLUX.1 schnell
 
 Lý do, theo thứ tự quan trọng với DoodleLife:
 
-1. **Hiểu tiếng Việt trực tiếp.** Nhật ký của người dùng viết bằng tiếng
-   Việt. Google liệt kê vi-VN trong nhóm ngôn ngữ hiệu năng tốt nhất của
-   Gemini 3 Pro/Flash Image; Imagen (chỉ hỗ trợ đầy đủ tiếng Anh) thì
-   không làm được điều này. Các provider còn lại đều là diffusion model
-   bám prompt tiếng Anh tốt nhất — dùng chúng nghĩa là phải thêm bước
-   dịch Việt → Anh, vừa tốn thêm chi phí/latency vừa có thể làm lệch ý
-   của câu nhật ký.
-2. **Rẻ đủ cho thử nghiệm và cho sản phẩm.** ~$0.07/ảnh → 20 câu thử hết
-   ~$1.40; 1.000 sticker/tháng ~$70, chấp nhận được cho đồ án.
-3. **Nhanh, API đơn giản (sync).** Phù hợp với cơ chế job trong DB của
-   Sprint 1: API gọi sync trong worker, job ghi trạng thái, không cần
-   webhook server ngay từ đầu.
-4. **Có đường nâng cấp cùng nhà.** Nếu Flash Image chưa đủ chất lượng
-   phong cách, nâng lên Gemini 3 Pro Image ($0.134/ảnh) mà không đổi
-   code — chỉ đổi `GEMINI_MODEL`. Đây cũng là provider dự phòng cấp 1.
+1. **Miễn phí thật cho đồ án, không cần billing.** 10.000 neurons/ngày
+   đủ khoảng 100–200 ảnh/ngày — 20 câu thử nghiệm hết $0, và cả sản
+   phẩm chạy demo cũng nằm trong hạn mức. Đây là điều kiện Sếp đặt ra
+   (không setup billing), và là điểm Gemini không đáp ứng được: tạo ảnh
+   qua Gemini API không có free tier.
+2. **Nhanh, API đơn giản (sync, trả ảnh base64 ngay).** Phù hợp với cơ
+   chế job trong DB của Sprint 1: API gọi sync trong worker, job ghi
+   trạng thái, không cần webhook server ngay từ đầu. FLUX.1 schnell ở
+   4 bước cho ảnh trong khoảng vài giây.
+3. **Giấy phép sạch.** FLUX.1 schnell là model mở (Apache 2.0), đầu ra
+   dùng được cho sản phẩm.
+4. **Cái giá phải trả: cần dịch prompt sang tiếng Anh.** FLUX là
+   diffusion model bám prompt tiếng Anh tốt nhất. Thử nghiệm C01 dùng
+   bản dịch `C01_SENTENCES_EN`; trong luồng sản phẩm cần bước dịch
+   Việt → Anh (có thể dùng Gemini text API vốn có free tier để dịch —
+   chỉ image output của Gemini mới không có free tier, text thì có).
+   Bước dịch có thể làm lệch ý nên phải chấm độ phù hợp 0–2 trên 20 ảnh
+   thật rồi mới chốt.
 
 ### Phương án dự phòng
 
-1. **Dự phòng cấp 1 (cùng nhà): Gemini 3 Pro Image** — $0.134/ảnh 1K–2K.
-   Dùng khi Flash Image cho sticker lệch phong cách hoặc bám prompt kém
-   trên 20 câu mẫu.
+1. **Dự phòng cấp 1 (nâng cấp trả phí): Gemini `gemini-nano-banana-2.1`**
+   — $0.0336/ảnh 1K, nạp trước tối thiểu $5 (~148 ảnh). Dùng khi FLUX
+   cho sticker lệch phong cách hoặc bám prompt kém trên 20 câu mẫu, và
+   chỉ khi nhóm đồng ý bật billing. Lợi thế: hiểu tiếng Việt trực tiếp,
+   không cần bước dịch.
 2. **Dự phòng cấp 2 (khác nhà, async native): Replicate FLUX Schnell/Dev**
-   — $0.003/$0.025/ảnh. Dùng khi cần async/webhook thật hoặc khi Gemini
-   lỗi/quota. Nhược điểm: phải dịch prompt sang tiếng Anh trước và phải
-   tải ảnh về storage ngay trong 1 giờ (output URL hết hạn).
+   — $0.003/$0.025/ảnh. Dùng khi cần async/webhook thật. Nhược điểm:
+   phải dịch prompt sang tiếng Anh trước và phải tải ảnh về storage ngay
+   trong 1 giờ (output URL hết hạn).
 3. **Dự phòng cấp 3: Stability SD3.5 Flash** — $0.025/ảnh, 25 credit miễn
    phí ban đầu. Rẻ, nhưng cũng cần dịch prompt và không có async native.
 
 ### Không chọn làm chính (và vì sao)
 
+- **Gemini làm chính**: chất lượng và tiếng Việt đều tốt, nhưng tạo ảnh
+  qua API không có free tier — Sếp đã quyết không setup billing nên
+  Gemini chỉ còn là đường nâng cấp trả phí.
 - **OpenAI `gpt-image-2`**: chất lượng cao, nhưng giá theo token nên chi
   phí mỗi ảnh dao động $0.006–$0.211 tùy quality và khó dự toán trước khi
-  chạy; không có lợi thế tiếng Việt rõ rệt so với Gemini mà giá medium
-  (~$0.053 + input) cũng không rẻ hơn Flash Image là bao. Giữ làm dự
-  phòng cấp 4 nếu nhóm đã có sẵn key OpenAI.
+  chạy; không có free tier. Giữ làm dự phòng cấp 4 nếu nhóm đã có sẵn
+  key OpenAI.
 - **Imagen 4 / `gpt-image-1`**: đã tắt, không dùng.
 
 ## Giới hạn thử nghiệm (cần xác minh khi chạy thật)
 
+- Cloudflare Workers AI: 10.000 neurons/ngày miễn phí trên cả gói Free
+  và Paid, reset 00:00 UTC; vượt hạn mức trên gói Free thì request lỗi
+  chứ không tự tính phí. FLUX.1 schnell ~57,6 neurons/ảnh 1024×1024 ở
+  4 bước theo bảng giá — con số thực tế đo được sẽ ghi lại khi chạy.
 - Gemini API: không có free tier cho image output qua API (chỉ AI Studio
   web UI miễn phí có giới hạn); cần billing enabled. Rate limit theo
   project — ghi lại khi chạy.
@@ -113,14 +145,17 @@ Lý do, theo thứ tự quan trọng với DoodleLife:
 
 ## Cần gì để hoàn thành C01 thật
 
-1. Một API key của provider chính: `GEMINI_API_KEY` (khuyến nghị).
-2. Chạy `npm run c01 -- --provider gemini` trong `apps/api` (20 câu,
-   ~$1.40 ước tính).
+1. Token + Account ID của provider chính: `CLOUDFLARE_API_TOKEN` và
+   `CLOUDFLARE_ACCOUNT_ID` (lấy free ở dashboard Cloudflare → trang
+   Workers AI → Use REST API → Create a Workers AI API Token).
+2. Chạy `npm run c01 -- --provider cloudflare` trong `apps/api` (20 câu,
+   $0 ước tính). Chạy thử 1–2 câu trước (`--limit 2`), rồi mới chạy cả 20.
 3. Người chấm xem 20 ảnh thật, điền `relevance` (0–2) và ghi chú lệch ý /
    chữ lạ / sai phong cách vào file kết quả, rồi cập nhật bảng này với
    tỷ lệ thành công, thời gian trung bình và chi phí thực tế.
-4. Nếu Flash Image không đạt, chạy lại cùng 20 câu với Nano Banana Pro
-   (`GEMINI_MODEL=gemini-3-pro-image`) rồi so sánh trước khi chốt.
+4. Nếu FLUX không đạt, chạy lại cùng 20 câu với Gemini
+   (`GEMINI_API_KEY` + billing, `GEMINI_MODEL=gemini-nano-banana-2.1`)
+   rồi so sánh trước khi chốt — nhưng chỉ khi nhóm đồng ý bật billing.
 
 ## Kết quả chạy thật lần 1 — 06/11/2026 16:48 (+07)
 
@@ -131,10 +166,9 @@ Lý do, theo thứ tự quan trọng với DoodleLife:
   `apps/api/results/c01-gemini.json` + `.csv` (không có ảnh nào trong `results/gemini/`).
 - Kiểm tra thêm: key hợp lệ — gọi danh sách model của Gemini API trả về
   61 model, trong đó có `models/gemini-nano-banana-2.1`. Vậy lỗi 429 không
-  phải do sai key hay sai tên model, mà do hết quota / bị giới hạn tốc độ
-  cho image generation trên key/project này (thường là chưa bật billing
-  cho image output, hoặc quota ngày đã hết).
-- Đã dừng, không thử lại liên tục. Cần kiểm tra ở Google AI Studio /
-  Google Cloud: billing đã bật chưa, quota image generation còn không,
-  rồi mới chạy lại. Chạy lại chỉ nên thử 1–2 câu trước, không chạy cả 20
-  câu ngay.
+  phải do sai key hay sai tên model.
+- **Nguyên nhân đã xác định tối 06/11/2026:** Gemini API không có free
+  tier cho image output — project free có limit 0 nên 429 không hết khi
+  chờ. Sếp quyết định không setup billing, vì vậy provider chính đổi
+  sang Cloudflare Workers AI (xem Hiệu đính 2 ở đầu báo cáo). Không chạy
+  lại Gemini khi chưa bật billing.

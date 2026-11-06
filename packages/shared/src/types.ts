@@ -1,7 +1,7 @@
 /** Trạng thái của một image job (C03/C05). */
 export type ImageJobStatus = 'queued' | 'processing' | 'succeeded' | 'failed';
 
-export type ImageProviderId = 'gemini' | 'openai' | 'stability' | 'replicate';
+export type ImageProviderId = 'gemini' | 'openai' | 'stability' | 'replicate' | 'cloudflare';
 
 export interface ImageJob {
   id: string;

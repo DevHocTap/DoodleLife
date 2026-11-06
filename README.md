@@ -47,15 +47,22 @@ docs/                # c01-report.md, sql/jobs.sql
 
 ## API tạo ảnh (C01)
 
-Xem `docs/c01-report.md` — so sánh 4 nhà cung cấp, khuyến nghị và phương
+Xem `docs/c01-report.md` — so sánh các nhà cung cấp, khuyến nghị và phương
 án dự phòng. Lưu ý: `gpt-image-1` đã tắt ngày 23/10/2026 và Imagen 4 đã tắt
 trên Gemini API ngày 17/08/2026; code dùng model kế nhiệm
 (`gpt-image-2`, Gemini 3 Pro/Flash Image).
 
-**Ảnh thật CHƯA được tạo trong lần scaffold này vì chưa có API key.**
-Chạy thử 20 câu cần key của provider đã chọn (xem `docs/c01-report.md`).
-Model Gemini mặc định là `gemini-nano-banana-2.1` (Google khuyên dùng cho
-dự án mới; `gemini-3.1-flash-image` đã deprecated).
+**Provider chính từ 06/11/2026 là Cloudflare Workers AI (FLUX.1 schnell),
+miễn phí 10.000 neurons/ngày** — Gemini đổi sang đường nâng cấp trả phí vì
+tạo ảnh qua Gemini API không có free tier (chạy thử lần 1 trả 0/20, toàn
+lỗi 429 do project free có limit 0). Chạy thử 20 câu với Cloudflare cần
+`CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (lấy free ở dashboard
+Cloudflare → trang Workers AI → Use REST API), xem `docs/c01-report.md`.
+Model Gemini mặc định vẫn là `gemini-nano-banana-2.1` (Google khuyên dùng
+cho dự án mới; `gemini-3.1-flash-image` đã deprecated).
+
+**Ảnh thật CHƯA được tạo vì chưa có key/token của provider nào.**
+Chạy thử 20 câu cần token của provider đã chọn (xem `docs/c01-report.md`).
 
 ## Bảo mật
 

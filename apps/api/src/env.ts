@@ -12,15 +12,20 @@ export interface Env {
   stabilityModel: string;
   replicateToken: string | undefined;
   replicateModel: string;
+  cloudflareApiToken: string | undefined;
+  cloudflareAccountId: string | undefined;
+  cloudflareModel: string;
 }
 
-const PROVIDERS: ImageProviderId[] = ['gemini', 'openai', 'stability', 'replicate'];
+const PROVIDERS: ImageProviderId[] = ['gemini', 'openai', 'stability', 'replicate', 'cloudflare'];
 
 export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
-  const raw = (env.IMAGE_PROVIDER ?? 'gemini').toLowerCase();
+  // Provider mặc định là cloudflare (miễn phí, Sếp chốt 06/11/2026);
+  // Gemini là đường nâng cấp trả phí, xem docs/c01-report.md.
+  const raw = (env.IMAGE_PROVIDER ?? 'cloudflare').toLowerCase();
   const provider = (PROVIDERS as string[]).includes(raw)
     ? (raw as ImageProviderId)
-    : 'gemini';
+    : 'cloudflare';
   return {
     port: Number(env.PORT ?? 3001),
     provider,
@@ -32,6 +37,9 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
     stabilityModel: env.STABILITY_MODEL || 'sd3.5-flash',
     replicateToken: env.REPLICATE_API_TOKEN || undefined,
     replicateModel: env.REPLICATE_MODEL || 'black-forest-labs/flux-schnell',
+    cloudflareApiToken: env.CLOUDFLARE_API_TOKEN || undefined,
+    cloudflareAccountId: env.CLOUDFLARE_ACCOUNT_ID || undefined,
+    cloudflareModel: env.CLOUDFLARE_MODEL || '@cf/black-forest-labs/flux-1-schnell',
   };
 }
 
@@ -46,5 +54,7 @@ export function apiKeyFor(env: Env, provider: ImageProviderId): string | undefin
       return env.stabilityApiKey;
     case 'replicate':
       return env.replicateToken;
+    case 'cloudflare':
+      return env.cloudflareApiToken;
   }
 }
